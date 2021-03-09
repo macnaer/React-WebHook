@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import { v4 as uuid } from 'uuid';
 import './App.css';
 
@@ -26,6 +26,19 @@ const App = () => {
     const [todos, setTodos] = useState([]);
     const [todoTitle, setTodoTitle] = useState("")
 
+    const AppContext = React.createContext(todos);
+
+    useEffect(() => {
+      const todosArr = localStorage.getItem("todos") || [];
+      setTodos(JSON.parse(todosArr))
+    }, [])
+
+    useEffect(() => {
+      localStorage.setItem("todos", JSON.stringify(todos))
+    }, [todos])
+
+
+
     const addTodo = event => {
       if (event.key === "Enter"){
         setTodos([
@@ -41,20 +54,24 @@ const App = () => {
     }
 
     // const { todos } = this.state;
+    console.log("AppContex App.js ", AppContext);
     return (
-      <div className="container">
-        <h1>Todo List</h1>
-        <div className="form-group">
-          <input type="text"
-            value={todoTitle}
-            onChange={event => setTodoTitle(event.target.value)}
-            onKeyPress={addTodo}
-          />
-          <label>Add new todo</label>
+      <AppContext.Provider value={todos}>
+        <div className="container">
+          <h1>Todo List</h1>
+          <div className="form-group">
+            <input type="text"
+              value={todoTitle}
+              onChange={event => setTodoTitle(event.target.value)}
+              onKeyPress={addTodo}
+            />
+            <label>Add new todo</label>
+          </div>
+          <ToDoList todos={todos} />
         </div>
-        <ToDoList todos={todos} />
-      </div>
+      </AppContext.Provider>
     );
+    
 }
 
 export default App;
