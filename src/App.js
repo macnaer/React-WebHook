@@ -1,62 +1,38 @@
-import React, {useState, useEffect} from "react";
-import { v4 as uuid } from 'uuid';
+import React, {useState, useEffect, useReducer} from "react";
+import { Context } from "./context";
 import './App.css';
 
 // ToDoList
 import ToDoList from "./Components/ToDoList/ToDoList";
+import reducer from "./reducer";
 
 const App = () => {
 
-  // state = {
-  //   todos: 
-  //   [
-  //     {id: uuid, title: "Learn react", completed: false },
-  //     {id: uuid, title: "Learn english", completed: false },
-  //     {id: uuid, title: "infotime", completed: false },
-  //   ]
-  
-  // }
 
-    // const [todos, setTodos] = useState([
-    //   {id: uuid, title: "Learn react", completed: false },
-    //    {id: uuid, title: "Learn english", completed: false },
-    //    {id: uuid, title: "infotime", completed: false },
-    // ])
-
-    const [todos, setTodos] = useState([]);
+    const [state, dispach] = useReducer(reducer, JSON.parse(localStorage.getItem("todos")))
     const [todoTitle, setTodoTitle] = useState("")
 
-    const AppContext = React.createContext(todos);
-
+  
     useEffect(() => {
-      const todosArr = localStorage.getItem("todos") || [];
-      setTodos(JSON.parse(todosArr))
-    }, [])
-
-    useEffect(() => {
-      localStorage.setItem("todos", JSON.stringify(todos))
-    }, [todos])
+      localStorage.setItem("todos", JSON.stringify(state))
+    }, [state])
 
 
 
     const addTodo = event => {
       if (event.key === "Enter"){
-        setTodos([
-          ...todos,
-          {
-            id: uuid(),
-            title: todoTitle,
-            completed: false
-          }
-        ])
+        dispach({
+          type: "add",
+          payload: todoTitle
+        })
         setTodoTitle("");
       }
     }
 
     // const { todos } = this.state;
-    console.log("AppContex App.js ", AppContext);
+    console.log("Context App.js ", Context);
     return (
-      <AppContext.Provider value={todos}>
+      <Context.Provider value={{dispach}}>
         <div className="container">
           <h1>Todo List</h1>
           <div className="form-group">
@@ -67,9 +43,9 @@ const App = () => {
             />
             <label>Add new todo</label>
           </div>
-          <ToDoList todos={todos} />
+          <ToDoList todos={state} />
         </div>
-      </AppContext.Provider>
+      </Context.Provider>
     );
     
 }
